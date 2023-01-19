@@ -3,7 +3,7 @@
         <header>
             <img src="../assets/img/bread_main.jpg" style="height: 400px; width: 100%;"/>
         </header>
-        <section>
+        <div class="contents">
             <div class="sectionA">
                 <h3> 지역별 빵집</h3>
                 <vueper-slides
@@ -12,7 +12,7 @@
                     :slide-ratio="1 / 4"
                     :dragging-distance="70"
                 >
-                    <vueper-slide v-for="i of regionalList" :key="i" :title="i.toString()" />
+                    <vueper-slide v-for="i of regionalList" :key="i" :title="i.title" :image="i.image" @click="handleRouter(id)"/>
                 </vueper-slides>
             </div>
 
@@ -42,20 +42,41 @@
             </div>
             <div class="sectionC">
                 <h3>평점 높은 빵집</h3>
-                    <ul>
-                        <li>1등</li>
-                        <li>2등</li>
-                        <li>3등</li>
-                        <li>4등</li>
-                        <li>5등</li>
-                    </ul>
+                <div class="topRatedContainer">
+                    <div class="ratedLeft">
+                        <div class="ratedBoxContainer">
+                            <div class="ratedBox">
+                                <img src="../assets/img/bread_main.jpg" />
+                            </div>
+                            <div class="ratedBox">
+                                <img src="../assets/img/bread1.jpg" />
+                            </div>
+                            <div class="ratedBox">
+                                <img src="../assets/img/bread2.jpg" />
+                            </div>
+                            <div class="ratedBox">
+                                <img src="../assets/img/bread3.jpg" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ratedRight">
+                        <ul>
+                            <li @click="handleRated1">1등</li>
+                            <li @click="handleRated2">2등</li>
+                            <li @click="handleRated3">3등</li>
+                            <li @click="handleRated4">4등</li>
+                            <li @click="handleRated5">5등</li>
+                        </ul>
+                    </div>
+                </div>
             </div>
-        </section>
+        </div>
         
     </div>
 </template>
 
 <script>
+import { useRouter } from 'vue-router';
 import { VueperSlides, VueperSlide } from 'vueperslides'
 import 'vueperslides/dist/vueperslides.css'
 
@@ -63,22 +84,51 @@ export default {
     components: { VueperSlides, VueperSlide },
 
     setup () {
-        const regionalList = ['부산진구', '남구', '해운대구', '중구', '동래구', '금정구'];
+
+        const router = useRouter();
+
+        const regionalList = [
+        { title: '부산진구', image:'https://picsum.photos/500/300?image=12', id:0 },
+        { title: '남구', image:'https://picsum.photos/500/300?image=11', id:1 },
+        { title: '해운대구', image:'https://picsum.photos/500/300?image=10', id:2 },
+        { title: '중구', image:'https://picsum.photos/500/300?image=9', id:3 },
+        { title: '동래구', image:'https://picsum.photos/500/300?image=7', id:4 },
+        { title: '금정구', image:'https://picsum.photos/500/300?image=6', id:5 }
+        ];
         
 
-
-
-        const handleKeyword1 = () =>{
+        const handleKeyword1 = () => {
             document.querySelector('.keywordContainer').style.transform = 'translate(0)'
         }
-        const handleKeyword2 = () =>{
+        const handleKeyword2 = () => {
             document.querySelector('.keywordContainer').style.transform = 'translate(-70vw)'
         }
-        const handleKeyword3 = () =>{
+        const handleKeyword3 = () => {
             document.querySelector('.keywordContainer').style.transform = 'translate(-140vw)'
         }
-        const handleKeyword4 = () =>{
+        const handleKeyword4 = () => {
             document.querySelector('.keywordContainer').style.transform = 'translate(-210vw)'
+        }
+
+
+        const handleRated1 = () => {
+            document.querySelector('.ratedBoxContainer').style.transform = 'translate(0)'
+        }
+        const handleRated2 = () => {
+            document.querySelector('.ratedBoxContainer').style.transform = 'translate(-35vw)'
+        }
+        const handleRated3 = () => {
+            document.querySelector('.ratedBoxContainer').style.transform = 'translate(-70vw)'
+        }
+        const handleRated4 = () => {
+            document.querySelector('.ratedBoxContainer').style.transform = 'translate(-115vw)'
+        }
+        const handleRated5 = () => {
+            document.querySelector('.ratedBoxContainer').style.transform = 'translate(-140vw)'
+        }
+
+        const handleRouter = (id) => {
+            router.push({path:"/regional", query:{id:id}})
         }
         
         return {
@@ -87,6 +137,12 @@ export default {
             handleKeyword2,
             handleKeyword3,
             handleKeyword4,
+            handleRated1,
+            handleRated2,
+            handleRated3,
+            handleRated4,
+            handleRated5,
+            handleRouter
         }
     }
 }
@@ -103,7 +159,7 @@ ul, li{
 /* .container{
     position: fixed;
 } */
-section{
+.contents{
     width: 70vw;
     position: absolute;
     left: 50%;
@@ -137,4 +193,32 @@ section{
 .keywordButton{
     text-align: center;
 }
+.topRatedContainer{
+    float: left;
+}
+.ratedLeft{
+    width: 35vw;
+    float: left;
+    background-color: blueviolet;
+    overflow: hidden;
+}
+.ratedBoxContainer{
+    width: 140vw;
+    float: left;
+    background-color: aqua;
+    transition: transform 1s;
+}
+.ratedBox{
+    width: 35vw;
+    float: left;
+}
+.ratedBox img{
+    width: 100%;
+}
+.ratedRight{
+    width: 35vw;
+    float: left;
+    background-color: aquamarine;
+}
+
 </style>

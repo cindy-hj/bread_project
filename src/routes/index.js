@@ -6,6 +6,7 @@ import CSPage from '@/components/CSPage.vue';
 import LoginPage from '@/components/LoginPage.vue';
 import JoinPage from '@/components/JoinPage.vue';
 import MyPage from '@/components/MyPage.vue';
+import RegionalPage from '@/components/RegionalPage.vue';
 
 
 const routes = [
@@ -15,7 +16,7 @@ const routes = [
     {path : '/login', component : LoginPage },
     {path : '/join', component : JoinPage },
     {path : '/mypage', component : MyPage },
-
+    {path : '/regional', component : RegionalPage },
 ]
 
 
