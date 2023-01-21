@@ -16,7 +16,7 @@ export default {
 
 <style lang="css" scoped>
 footer {
-  background-color: gray;
+  /* background-color: gray; */
   height: 200px;
   position: relative;
   /* bottom: 0px; */

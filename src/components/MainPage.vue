@@ -12,7 +12,7 @@
                     :slide-ratio="1 / 4"
                     :dragging-distance="70"
                 >
-                    <vueper-slide v-for="i of regionalList" :key="i" :title="i.title" :image="i.image" @click="handleRouter(id)"/>
+                    <vueper-slide v-for="i of regionalList" :key="i" :title="i.title" :image="i.image" @click="handleRouter(i.title)"/>
                 </vueper-slides>
             </div>
 
@@ -88,12 +88,12 @@ export default {
         const router = useRouter();
 
         const regionalList = [
-        { title: '부산진구', image:'https://picsum.photos/500/300?image=12', id:0 },
-        { title: '남구', image:'https://picsum.photos/500/300?image=11', id:1 },
-        { title: '해운대구', image:'https://picsum.photos/500/300?image=10', id:2 },
-        { title: '중구', image:'https://picsum.photos/500/300?image=9', id:3 },
-        { title: '동래구', image:'https://picsum.photos/500/300?image=7', id:4 },
-        { title: '금정구', image:'https://picsum.photos/500/300?image=6', id:5 }
+        { title: '부산진구', image:'https://picsum.photos/500/300?image=12' },
+        { title: '남구', image:'https://picsum.photos/500/300?image=11' },
+        { title: '해운대구', image:'https://picsum.photos/500/300?image=10' },
+        { title: '중구', image:'https://picsum.photos/500/300?image=9' },
+        { title: '동래구', image:'https://picsum.photos/500/300?image=7' },
+        { title: '금정구', image:'https://picsum.photos/500/300?image=6' }
         ];
         
 
@@ -127,9 +127,11 @@ export default {
             document.querySelector('.ratedBoxContainer').style.transform = 'translate(-140vw)'
         }
 
-        const handleRouter = (id) => {
-            router.push({path:"/regional", query:{id:id}})
+        const handleRouter = (region) => {
+            router.push({path:"/regional", query:{text:region}})
         }
+
+        /api/bakery/select.json?page=${state.page}&text=${state.region}
         
         return {
             regionalList,
