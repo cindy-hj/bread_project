@@ -52,10 +52,10 @@ router.post('/insert.json', upload.single("file"), async function(req, res, next
     }
 });
 
-// 지역별 빵집 조회 => http://127.0.0.1:3000/api/bakery/select.json?page=1
+// 지역별 빵집 조회 => http://127.0.0.1:3000/api/bakery/select.json?page=1&region=''
 router.get('/select.json', async function(req, res, next) {
     try{
-        const text = req.query.text; // 검색어
+        const text = req.query.region; // 검색어
         const page = Number(req.query.page); // 1
         
         // 전체 데이터에서 제목이 검색어가 포함된 것 가져오기
@@ -67,10 +67,10 @@ router.get('/select.json', async function(req, res, next) {
             filetype: 0,
         } // 필요 없는거 빼면 속도 빨라진다!
         const result = await Bakery.find(query, project)
-                                  .sort({ _id : -1 }) // 정렬
-                                  .skip( (page-1)*10 ) // 스킵
-                                  .limit( 10 ); // 조회할 개수
-
+                                   .sort({ _id : -1 }) // 정렬
+                                   .skip( (page-1)*10 ) // 스킵
+                                   .limit( 10 ); // 조회할 개수
+ 
         // 목록에서 등록일, 이미지 URL 수동으로 생성하기
         for(let tmp of result) {
             // format("YYYY-MM-DD DD:mm:ss")
@@ -83,6 +83,7 @@ router.get('/select.json', async function(req, res, next) {
 
         return res.send({ status : 200, total : total, result : result });
     }
+
     catch(e){
         console.error(e); 
         return res.send({ status : -1, result : e });

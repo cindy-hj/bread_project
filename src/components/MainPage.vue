@@ -127,11 +127,11 @@ export default {
             document.querySelector('.ratedBoxContainer').style.transform = 'translate(-140vw)'
         }
 
-        const handleRouter = (region) => {
-            router.push({path:"/regional", query:{text:region}})
+        const handleRouter = (text) => {
+            router.push({path:"/regional", query:{region:text}})
         }
 
-        /api/bakery/select.json?page=${state.page}&text=${state.region}
+        // /api/bakery/select.json?page=${state.page}&text=${state.region}
         
         return {
             regionalList,
