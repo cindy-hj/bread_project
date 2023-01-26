@@ -5,21 +5,28 @@
                 <div class="map">
                     <div
                         id="map"
-                        style="width: 350px; height: 350px"
+                        style="width: 400px; height: 400px"
                     ></div>
                 </div>
-                <div class="buttonWrap"></div>
+                <div class="buttonWrap">
+                    <el-button type="primary" size="small" round @click="handleRegion('부산진구')">부산진구</el-button>
+                    <el-button type="primary" size="small" round @click="handleRegion('남구')">남구</el-button>
+                    <el-button type="primary" size="small" round @click="handleRegion('해운대구')">해운대구</el-button>
+                    <el-button type="primary" size="small" round @click="handleRegion('중구')">중구</el-button>
+                    <el-button type="primary" size="small" round @click="handleRegion('동래구')">동래구</el-button>
+                    <el-button type="primary" size="small" round @click="handleRegion('금정구')">금정구</el-button>
+                </div>
             </div>
             <div class=section id="sectionB">
                 <div class=regionalHeader>
                     <h3>{{ state.region }}</h3>
                 </div>
                 <div v-for="tmp in state.rows" :key="tmp" >
+                    <hr />
                     <p>{{ tmp.name }}</p>
                     <p>{{ tmp.menu }}</p>
                     <p>{{ tmp.price }}</p>
-                    <hr />
-
+                    <p><img :src="tmp.imageurl"></p>
                 </div>
             </div>
         </div>
@@ -28,7 +35,7 @@
 
 <script>
 import { onMounted, reactive } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import axios from 'axios';
 
 export default {
@@ -36,6 +43,8 @@ export default {
     setup() {
     
         const route = useRoute();
+        const router = useRouter();
+
         const state = reactive({
             region: route.query.region,
             rows: [],
@@ -44,11 +53,18 @@ export default {
 
         });    
 
+        const handleRegion = (region) => {
+            state.region = region;
+            handleData();
+            handleMap();
+            router.push({path: '/regional', query: {page:1, region:region}});
+        };
+
         ////////////////////////////////////////////////지도//////////////////////////////////
         const initMap = () => {
             const mapContainer = document.getElementById('map');
             const mapOptions = {
-                center: new window.kakao.maps.LatLng(35.15, 129.05), // 위치
+                center: new window.kakao.maps.LatLng(state.rows[0].lat, state.rows[0].lng), // 위치
                 level: 6 // 배율
             };
 
@@ -124,10 +140,10 @@ export default {
 
 
         const handleData = async() => {
-            const url = `/api/bakery/select.json?page=${state.page}&text=${state.region}`;
+            const url = `/api/bakery/select.json?page=${state.page}&region=${state.region}`;
             const headers = { "Content-Type" : "application/json" };
             const { data } = await axios.get(url, { headers });
-            console.log(data);
+            console.log('확인',data);
 
             if(data.status === 200) {
                 state.rows = data.result;
@@ -142,6 +158,7 @@ export default {
 
         return {
             state,
+            handleRegion
             // closeOverlay
         };
     }
@@ -149,7 +166,17 @@ export default {
 </script>
 
 <style lang="css" scoped>
-.section{
+.section {
     float: left;
+}
+.buttonWrap {
+    width: 300px;
+    text-align: center;
+}
+#sectionB {
+    margin-left: 30px;
+}
+img {
+    width: 300px;
 }
 </style>

@@ -52,30 +52,32 @@ router.post('/insert.json', upload.single("file"), async function(req, res, next
     }
 });
 
-// 지역별 빵집 조회 => http://127.0.0.1:3000/api/bakery/select.json?page=1&region=''
+// 지역별 빵집 조회 => http://127.0.0.1:3000/api/bakery/select.json?page=1&region=지역
+// 여기에서 url에 붙는 쿼리는 어떻게 만들어지는 것인지..? vue에 RegionalPage에서 데이터 요청할때 query값을 넣어줌
 router.get('/select.json', async function(req, res, next) {
     try{
-        const text = req.query.region; // 검색어
         const page = Number(req.query.page); // 1
+        const region = req.query.region; // 지역
         
         // 전체 데이터에서 제목이 검색어가 포함된 것 가져오기
-        const query = { address : new RegExp( text, 'i' ) }; // RegExp는 포함된 것을 찾아내는 정규식
+        const query = { address : new RegExp(region, 'i') }; // RegExp는 포함된 것을 찾아내는 정규식, i는 대소문자 무시하는 flag
         const project = { 
             filedata: 0, 
             filename: 0, 
             filesize: 0, 
             filetype: 0,
-        } // 필요 없는거 빼면 속도 빨라진다!
+        } 
         const result = await Bakery.find(query, project)
                                    .sort({ _id : -1 }) // 정렬
                                    .skip( (page-1)*10 ) // 스킵
                                    .limit( 10 ); // 조회할 개수
  
-        // 목록에서 등록일, 이미지 URL 수동으로 생성하기
+        // 이미지 URL을 생성은 했으나 file값은 받아오지 않았으므로 file값을 따로 받아오는 get을 만들어야함
+        // 합쳐서 하지 않는이유? 다른 곳에서도(ex:상점 1개 조회) 이미지를 불러오는 get을 쓸 수 있으므로 그때마다 file값 불러오기 번거로우니까 모듈로 분리
         for(let tmp of result) {
             // format("YYYY-MM-DD DD:mm:ss")
             tmp.regdate1 = moment(tmp.regdate).format("YYYY-MM-DD");
-            tmp.imageurl = `/api/bakery.image?_id=${tmp._id}`;
+            tmp.imageurl = `/api/bakery/image?_id=${tmp._id}&ts=${Date.now()}`;
         }
 
         // 페이지네이션용 전체 개수(검색어가 포함된 개수)
@@ -91,6 +93,24 @@ router.get('/select.json', async function(req, res, next) {
 
 });
 
+
+router.get('/image', async function (req, res, next) {
+    try {
+      const query = { _id: Number(req.query._id) };
+      const project = { filedata: 1, filetype: 1 };
+      const result = await Bakery.findOne(query, project);
+      //console.log(result);
+  
+      res.contentType(result.filetype);
+  
+      return res.send(result.filedata);
+  
+    } catch (e) {
+      console.error(e);
+      return res.send({ status: -1, result: e });
+    }
+  });
+  
 
 
 module.exports = router;
