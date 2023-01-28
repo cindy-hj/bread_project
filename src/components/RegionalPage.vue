@@ -23,7 +23,7 @@
                 </div>
                 <div v-for="tmp in state.rows" :key="tmp" >
                     <hr />
-                    <p>{{ tmp.name }}</p>
+                    <p @click="handleOne(tmp.name)">{{ tmp.name }}</p>
                     <p>{{ tmp.menu }}</p>
                     <p>{{ tmp.price }}</p>
                     <p><img :src="tmp.imageurl"></p>
@@ -41,7 +41,6 @@ import axios from 'axios';
 export default {
 
     setup() {
-    
         const route = useRoute();
         const router = useRouter();
 
@@ -53,6 +52,10 @@ export default {
 
         });    
 
+        const handleOne = (name) => {
+            router.push({path:"/bakery", query:{page:1, bakery:name}})
+        }
+
         const handleRegion = (region) => {
             state.region = region;
             handleData();
@@ -62,64 +65,88 @@ export default {
 
         ////////////////////////////////////////////////지도//////////////////////////////////
         const initMap = () => {
+            console.log(state.rows[0].lat);
             const mapContainer = document.getElementById('map');
             const mapOptions = {
+                // 변수 선언할때 if문 쓸수 없다!
                 center: new window.kakao.maps.LatLng(state.rows[0].lat, state.rows[0].lng), // 위치
-                level: 6 // 배율
+                level: 6 // 배율        
             };
-
+            // 지도를 표시할 div와 지도 옵션으로 지도를 생성
             const map = new window.kakao.maps.Map(mapContainer, mapOptions);
 
-            // marker
+            const overlay = new Array(); // 오버레이를 담을 배열 생성
+            const marker = new Array(); // 마커를 담을 배열 생성
+
             for (let tmp of state.rows) {
-                const position = new window.kakao.maps.LatLng(tmp.lat, tmp.lng);
-                // console.log(tmp.lng);
-                const markerOptions = {
+                // DB에 저장된 위도, 경도값을 담음
+                var position = new window.kakao.maps.LatLng(tmp.lat, tmp.lng); 
+                
+                // 마커 생성 및 위치 설정
+                var markers = new window.kakao.maps.Marker({ 
                     map: map,
                     position: position
-                };
+                });
+                // 생성된 마커를 배열에 추가
+                marker.push(markers); 
 
-                const marker = new window.kakao.maps.Marker(markerOptions);
-
-                // 오버레이
-                const overlay = new window.kakao.maps.CustomOverlay({
-                    content: '내용',
+                var content = "<div style='z-index:3; width:50px; height:50px;'>내용</div>";
+                
+                // 오버레이 생성 및 옵션 설정
+                var overlays = new window.kakao.maps.CustomOverlay({
+                    content: content,
                     map: map,
-                    position: marker.getPosition()       
+                    zIndex:4
+                    // position:''      
                 });
+                // 생성된 오버레이를 배열에 추가
+                overlay.push(overlays);
 
-                // 마커를 클릭했을 때 커스텀 오버레이를 표시합니다
-                window.kakao.maps.event.addListener(marker, 'click', function() {
-                    overlay.setMap(map);
-                });
-
-                // 커스텀 오버레이를 닫기 위해 호출되는 함수입니다 
-                // function closeOverlay() {
-                //     overlay.setMap(null);     
-                // }
             }
             
+            for (let i=0; i<marker.length; i++) {
+                // 마커를 클릭했을 때 커스텀 오버레이를 표시
+                window.kakao.maps.event.addListener(marker[i], 'click', function() {
+                overlay[i].setPosition( marker[i].getPosition() );
+                overlay[i].setMap(map);
+                });
 
+                 
+            }
+
+
+            
+           
 
             // 오버레이 내용
-            // const content = <div class="wrap">
-            //     <div class="info"> 
-            //         <div class="title">
-            //             카카오 스페이스닷원
-            //             <div class="close" onclick="closeOverlay()" title="닫기"></div>
-            //         </div>
-            //         <div class="body"> 
-            //             <div class="img">
-            //                 <img src="https://cfile181.uf.daum.net/image/250649365602043421936D" width="73" height="70" /> 
-            //             </div> 
-            //             <div class="desc"> 
-            //                 <div class="ellipsis">제주특별자치도 제주시 첨단로 242</div> 
-            //                 <div class="jibun ellipsis">(우) 63309 (지번) 영평동 2181</div> 
-            //                 <div><a href="https://www.kakaocorp.com/main" target="_blank" class="link">홈페이지</a></div> 
-            //             </div> 
-            //         </div> 
-            //     </div>    
-            // </div>
+                // const content = <div class="wrap">
+                //     <div class="info"> 
+                //         <div class="title">
+                //             카카오 스페이스닷원
+                //             <div class="close" onclick="closeOverlay()" title="닫기"></div>
+                //         </div>
+                //         <div class="body"> 
+                //             <div class="img">
+                //                 <img src="https://cfile181.uf.daum.net/image/250649365602043421936D" width="73" height="70" /> 
+                //             </div> 
+                //             <div class="desc"> 
+                //                 <div class="ellipsis">제주특별자치도 제주시 첨단로 242</div> 
+                //                 <div class="jibun ellipsis">(우) 63309 (지번) 영평동 2181</div> 
+                //                 <div><a href="https://www.kakaocorp.com/main" target="_blank" class="link">홈페이지</a></div> 
+                //             </div> 
+                //         </div> 
+                //     </div>    
+                // </div>
+
+
+
+
+            // 커스텀 오버레이를 닫기 위해 호출되는 함수입니다 
+            // function closeOverlay() {
+            //     overlay.setMap(null);     
+            // }
+
+           
 
             
         };
@@ -158,7 +185,8 @@ export default {
 
         return {
             state,
-            handleRegion
+            handleRegion,
+            handleOne
             // closeOverlay
         };
     }

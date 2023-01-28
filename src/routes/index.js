@@ -7,6 +7,7 @@ import LoginPage from '@/components/LoginPage.vue';
 import JoinPage from '@/components/JoinPage.vue';
 import MyPage from '@/components/MyPage.vue';
 import RegionalPage from '@/components/RegionalPage.vue';
+import BakeryPage from '@/components/BakeryPage.vue';
 
 
 const routes = [
@@ -17,6 +18,7 @@ const routes = [
     {path : '/join', component : JoinPage },
     {path : '/mypage', component : MyPage },
     {path : '/regional', component : RegionalPage },
+    {path : '/bakery', component : BakeryPage },
 ]
 
 

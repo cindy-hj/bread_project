@@ -6,20 +6,20 @@
             <router-view></router-view>
         </div>
         
-        <footer-page></footer-page>
+        <!-- <footer-page></footer-page> -->
     </div>
 </template>
 
 <script>
 import MenuPage from './components/MenuPage.vue';
-import FooterPage from './components/FooterPage.vue';
+// import FooterPage from './components/FooterPage.vue';
 import { Search } from '@element-plus/icons-vue';
 
 export default {
     components: {
 
         MenuPage,
-        FooterPage,
+        // FooterPage,
         
     },
     setup() {

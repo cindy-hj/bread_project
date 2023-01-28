@@ -1,4 +1,4 @@
-<template>
+<!-- <template>
     <div>
         <footer>footer</footer>
     </div>
@@ -22,4 +22,4 @@ footer {
   /* bottom: 0px; */
   transform : translateY(-100%);
 }
-</style>
+</style> -->
