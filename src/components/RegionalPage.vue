@@ -49,8 +49,12 @@ export default {
             rows: [],
             total: 0,
             page: route.query.page,
+            overlay: []
 
         });    
+
+        // 여기에서는 배열의 원소에 접근이 안됨
+        // console.log('배열확인', state.overlay[0]);
 
         const handleOne = (name) => {
             router.push({path:"/bakery", query:{page:1, bakery:name}})
@@ -65,7 +69,6 @@ export default {
 
         ////////////////////////////////////////////////지도//////////////////////////////////
         const initMap = () => {
-            console.log(state.rows[0].lat);
             const mapContainer = document.getElementById('map');
             const mapOptions = {
                 // 변수 선언할때 if문 쓸수 없다!
@@ -75,80 +78,49 @@ export default {
             // 지도를 표시할 div와 지도 옵션으로 지도를 생성
             const map = new window.kakao.maps.Map(mapContainer, mapOptions);
 
-            const overlay = new Array(); // 오버레이를 담을 배열 생성
+            // const overlay = new Array(); // 오버레이를 담을 배열 생성
             const marker = new Array(); // 마커를 담을 배열 생성
-
+            
             for (let tmp of state.rows) {
                 // DB에 저장된 위도, 경도값을 담음
-                var position = new window.kakao.maps.LatLng(tmp.lat, tmp.lng); 
+                let position = new window.kakao.maps.LatLng(tmp.lat, tmp.lng); 
                 
                 // 마커 생성 및 위치 설정
-                var markers = new window.kakao.maps.Marker({ 
+                let markers = new window.kakao.maps.Marker({ 
                     map: map,
                     position: position
                 });
                 // 생성된 마커를 배열에 추가
                 marker.push(markers); 
 
-                var content = "<div style='z-index:3; width:50px; height:50px;'>내용</div>";
+                let content = `<div style='z-index:3;'>${tmp.name}</div>
+                <img src = "${tmp.imageurl}" style = 'width:50px; height:50px;' />
+                <button id="close" onclick="closeOverlay()">닫기</button>`;
                 
                 // 오버레이 생성 및 옵션 설정
-                var overlays = new window.kakao.maps.CustomOverlay({
+                let overlays = new window.kakao.maps.CustomOverlay({
                     content: content,
                     map: map,
                     zIndex:4
                     // position:''      
                 });
                 // 생성된 오버레이를 배열에 추가
-                overlay.push(overlays);
+                state.overlay.push(overlays);
+                
+                // 이 위치에서는 배열의 원소 접근 가능
+                // console.log('배열확인', state.overlay[0]);
 
             }
             
+            console.log('배열확인', state.overlay[0]);
+
             for (let i=0; i<marker.length; i++) {
                 // 마커를 클릭했을 때 커스텀 오버레이를 표시
                 window.kakao.maps.event.addListener(marker[i], 'click', function() {
-                overlay[i].setPosition( marker[i].getPosition() );
-                overlay[i].setMap(map);
+                    state.overlay[i].setPosition( marker[i].getPosition() );
+                    state.overlay[i].setMap(map);
                 });
-
-                 
             }
-
-
-            
-           
-
-            // 오버레이 내용
-                // const content = <div class="wrap">
-                //     <div class="info"> 
-                //         <div class="title">
-                //             카카오 스페이스닷원
-                //             <div class="close" onclick="closeOverlay()" title="닫기"></div>
-                //         </div>
-                //         <div class="body"> 
-                //             <div class="img">
-                //                 <img src="https://cfile181.uf.daum.net/image/250649365602043421936D" width="73" height="70" /> 
-                //             </div> 
-                //             <div class="desc"> 
-                //                 <div class="ellipsis">제주특별자치도 제주시 첨단로 242</div> 
-                //                 <div class="jibun ellipsis">(우) 63309 (지번) 영평동 2181</div> 
-                //                 <div><a href="https://www.kakaocorp.com/main" target="_blank" class="link">홈페이지</a></div> 
-                //             </div> 
-                //         </div> 
-                //     </div>    
-                // </div>
-
-
-
-
-            // 커스텀 오버레이를 닫기 위해 호출되는 함수입니다 
-            // function closeOverlay() {
-            //     overlay.setMap(null);     
-            // }
-
-           
-
-            
         };
 
         const handleMap = () => {
@@ -163,8 +135,19 @@ export default {
                     window.kakao.maps.load(initMap);
                 };
         };
-        //////////////////////////////////////////////////////////
 
+        const closeOverlay = () => {
+            alert('함수호출');
+            // for(let i = 0; i < 3; i++) {
+            //     state.overlay[i].setMap(null);     
+            //     state.overlay[i].setPosition(null);
+            // }
+            // console.log('배열확인', state.overlay[0]);
+
+        }     
+        // document.getElementById("close").addEventListener("click", closeOverlay());
+
+        //////////////////////////////////////////////////////////
 
         const handleData = async() => {
             const url = `/api/bakery/select.json?page=${state.page}&region=${state.region}`;
@@ -186,8 +169,8 @@ export default {
         return {
             state,
             handleRegion,
-            handleOne
-            // closeOverlay
+            handleOne,
+            closeOverlay
         };
     }
 };
