@@ -48,9 +48,7 @@ export default {
             region: route.query.region,
             rows: [],
             total: 0,
-            page: route.query.page,
-            overlay: []
-
+            page: route.query.page
         });    
 
         // 여기에서는 배열의 원소에 접근이 안됨
@@ -78,7 +76,7 @@ export default {
             // 지도를 표시할 div와 지도 옵션으로 지도를 생성
             const map = new window.kakao.maps.Map(mapContainer, mapOptions);
 
-            // const overlay = new Array(); // 오버레이를 담을 배열 생성
+            const overlay = new Array(); // 오버레이를 담을 배열 생성
             const marker = new Array(); // 마커를 담을 배열 생성
             
             for (let tmp of state.rows) {
@@ -94,8 +92,7 @@ export default {
                 marker.push(markers); 
 
                 let content = `<div style='z-index:3;'>${tmp.name}</div>
-                <img src = "${tmp.imageurl}" style = 'width:50px; height:50px;' />
-                <button id="close" onclick="closeOverlay()">닫기</button>`;
+                <img src = "${tmp.imageurl}" style = 'width:50px; height:50px;' />`
                 
                 // 오버레이 생성 및 옵션 설정
                 let overlays = new window.kakao.maps.CustomOverlay({
@@ -105,21 +102,31 @@ export default {
                     // position:''      
                 });
                 // 생성된 오버레이를 배열에 추가
-                state.overlay.push(overlays);
+                overlay.push(overlays);
                 
                 // 이 위치에서는 배열의 원소 접근 가능
                 // console.log('배열확인', state.overlay[0]);
 
             }
             
-            console.log('배열확인', state.overlay[0]);
+            console.log('클릭전 오버레이 배열확인', overlay);
 
             for (let i=0; i<marker.length; i++) {
                 // 마커를 클릭했을 때 커스텀 오버레이를 표시
                 window.kakao.maps.event.addListener(marker[i], 'click', function() {
-                    state.overlay[i].setPosition( marker[i].getPosition() );
-                    state.overlay[i].setMap(map);
+                    overlay[i].setPosition( marker[i].getPosition() );
+                    overlay[i].setMap(map);
+                    console.log('클릭후 오버레이 배열확인', overlay);
                 });
+
+                window.kakao.maps.event.addListener(map, 'click', function() {
+                    overlay[i].setMap(null);
+                });
+
+                window.kakao.maps.event.addListener(overlay[i], 'click', function() {
+                    console.log(overlay[i]);
+                    overlay[i].setMap(null);
+                });  
             }
         };
 
