@@ -14,7 +14,7 @@ var upload = multer({storage : multer.memoryStorage()});
 var User = require('../models/usermodel');
 
 // 회원 가입 => 127.0.0.1:3000/api/bakery/join.json
-router.post('/join.json', upload.single("file"), async function(req, res, next) {
+router.post('/join.json', async function(req, res, next) {
     try{
         const user = new User();
         user.email = req.body.email;

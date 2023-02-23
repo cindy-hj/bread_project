@@ -45,8 +45,8 @@
 
                 <el-sub-menu index="4">
                     <template #title>이미지</template>
-                    <el-menu-item index="4-1">로그인</el-menu-item>
-                    <el-menu-item index="4-2">회원가입</el-menu-item>
+                    <el-menu-item index="4-1"><router-link to="/login" style="text-decoration: none">로그인</router-link></el-menu-item>
+                    <el-menu-item index="4-2"><router-link to="/join" style="text-decoration: none">회원가입</router-link></el-menu-item>
                     <!-- <el-menu-item index="4-3">나의정보</el-menu-item> -->
                     <!-- <el-sub-menu index="4-4">
                     <template #title>item four</template>

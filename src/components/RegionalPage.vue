@@ -159,7 +159,6 @@ export default {
         const handleData = async() => {
             const url = `/api/bakery/select.json?page=${state.page}&region=${state.region}`;
             const headers = { "Content-Type" : "application/json" };
-            const { data } = await axios.get(url, { headers });
             console.log('확인',data);
 
             if(data.status === 200) {

@@ -9,6 +9,7 @@ var mongoose = require('mongoose');
 
 // 1. require, rest용
 var bakeryRouter = require('./routes/bakery');
+var userRouter = require('./routes/user');
 
 var app = express();
 
@@ -28,6 +29,7 @@ mongoose.connection;
 
 // 2. 주소 설정
 app.use('/api/bakery', bakeryRouter);
+app.use('/api/user', userRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
