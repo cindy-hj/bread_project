@@ -6,7 +6,7 @@
         >
 
             <el-form-item label="이메일">
-                <el-input :ref="el => {arr[0]=el}" v-model="state.email_id" style="width: 151px;" autofocus/>
+                <el-input :ref="el => {arr[0]=el}" v-model="state.email_id" style="width: 151px;" autofocus />
                 <span>@</span>
                 <el-select
                    :ref="el => {arr[1]=el}"
