@@ -9,21 +9,22 @@ var UserSchema = new mongoose.Schema({
     email           : { type: String, default: '' }, // 이메일
     name            : { type: String, default: '' }, // 이름
     address         : { type: String, default: '' }, // 주소
-    detailaddress   : { type: String, default: '' }, // 상세주소
+    detailAddress   : { type: String, default: '' }, // 상세주소
+    extraAddress    : { type: String, default: '' }, // 상세주소
     gender          : { type: String, default: '' }, // 성별
     password        : { type: String, default: '' }, // 비밀번호
     
-    reveiwcount     : { type: Number, default: 0 }, // 리뷰횟수
-    joindate        : { type: Date, default: Date.now }, // 가입일자
-    withdrawaldate  : { type: Date, default: '' }, // 탈퇴일자
+    reveiwCount     : { type: Number, default: 0 }, // 리뷰횟수
+    joinDate        : { type: Date, default: Date.now }, // 가입일자
+    withdrawalDate  : { type: Date, default: '' }, // 탈퇴일자
     
-    filedata        : { type: Buffer, default: null }, // 파일데이터
-    filename        : { type: String, default: '' }, // 파일명
-    filetype        : { type: String, default: '' }, // 파일종류
-    filesize        : { type: Number, default: 0 }, // 파일크기
-    imageurl        : { type: String, default: '' }, // 유저프로필사진 URL
+    fileData        : { type: Buffer, default: null }, // 파일데이터
+    fileName        : { type: String, default: '' }, // 파일명
+    fileType        : { type: String, default: '' }, // 파일종류
+    fileSize        : { type: Number, default: 0 }, // 파일크기
+    imageUrl        : { type: String, default: '' }, // 유저프로필사진 URL
     
-    isadmin         : { type: Boolean, default: false }, // 관리자유무
+    isAdmin         : { type: Boolean, default: false }, // 관리자유무
 });
 
 UserSchema.plugin(sequence, {
@@ -57,5 +58,12 @@ UserSchema.pre("save", function(next){
         next();
     }
 }) 
+
+UserSchema.methods.comparePassword = (plainPassword) => {
+    return bcrypt
+        .compare(plainPassword, this.password)
+        .then((isMatch) => isMatch)
+        .catch((err) => err);
+};
 
 module.exports = mongoose.model('user', UserSchema)

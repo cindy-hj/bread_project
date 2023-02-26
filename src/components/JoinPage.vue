@@ -4,26 +4,25 @@
             :model="state"
             label-width="120px"
         >
-
             <el-form-item label="이메일">
-                <el-input :ref="el => {arr[0]=el}" v-model="state.email_id" style="width: 151px;" autofocus />
+                <el-input :ref="el => {arr[0]=el}" v-model="state.emailId" style="width: 151px;" autofocus />
                 <span>@</span>
                 <el-select
                    :ref="el => {arr[1]=el}"
-                    v-model="state.email_add"
+                    v-model="state.emailAdd"
                     placeholder="이메일 주소를 선택하세요"
                 >
                     <el-option
                         label="google.com"
-                        value="google"
+                        value="google.com"
                     />
                     <el-option
                         label="naver.com"
-                        value="naver"
+                        value="naver.com"
                     />
                     <el-option
                         label="daum.net"
-                        value="daum"
+                        value="daum.net"
                     />
                 </el-select>
             </el-form-item>
@@ -37,7 +36,7 @@
             </el-form-item>
 
             <el-form-item label="주소">
-                <el-input class="addr" id="postcode" v-model="state.postcode" placeholder="우편번호" style="width: 151px;"/>
+                <el-input class="addr" id="postcode" placeholder="우편번호" style="width: 151px;"/>
                 <el-button class="addr" @click="onPostcode()">우편번호 찾기</el-button>
                 <el-input class="addr" id="address" :ref="el => {arr[4]=el}" v-model="state.address" placeholder="주소" />
                 <el-input class="addr" id="detailAddress" :ref="el => {arr[5]=el}" v-model="state.detailAddress" placeholder="상세주소" style="width: 209px;" />
@@ -73,11 +72,10 @@ export default {
         const router = useRouter();
 
         const state = reactive({
-            email_id: '',
-            email_add: '',
+            emailId: '',
+            emailAdd: '',
             password: '',
             name: '',
-            postcode: '',
             address: '',
             detailAddress: '',
             extraAddress: '',
@@ -87,12 +85,12 @@ export default {
         const arr = ref([]);
 
         const handleJoin = async() => {
-            if(state.email_id.length <= 0) {
+            if(state.emailId.length <= 0) {
                 alert("이메일 아이디를 입력하세요.")
                 arr.value[0].focus();
                 return false;
             }
-            if(state.email_add.length <= 0) {
+            if(state.emailAdd.length <= 0) {
                 alert("이메일 주소를 선택하세요.")
                 arr.value[1].focus();
                 return false;
@@ -125,10 +123,11 @@ export default {
             const url = `api/user/join.json`;
             const headers = {"Content-Type":"application/json"};
             const body = {
-                email : `${state.email_id}@${state.email_add}`,
+                email : `${state.emailId}@${state.emailAdd}`,
                 name : state.name,
                 address : state.address,
-                detailaddress : state.detailAddress,
+                detailAddress : state.detailAddress,
+                extraAddress : state.extraAddress,
                 gender : state.gender,
                 password : state.password
             }
