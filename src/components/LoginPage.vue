@@ -52,8 +52,16 @@ export default {
 
             if(data.status === 200) {
                 console.log("로그인 성공");
+                router.push({path:"/"});
+            } else if(data.status === 0) {
+                console.log("로그인 실패");
+                alert("존재하지 않는 아이디입니다.");
+            } else if(data.status === -1) {
+                console.log("로그인 실패");
+                alert("비밀번호가 일치하지 않습니다.")
             } else {
                 console.log("로그인 실패");
+                alert("잠시 뒤 다시 시도해주세요.");
             }
         }
 
