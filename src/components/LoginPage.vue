@@ -29,10 +29,12 @@
 import axios from 'axios';
 import { reactive } from 'vue';
 import { useRouter } from 'vue-router';
+import { useStore } from 'vuex';
 
 export default {
     setup () {
         
+        const store = useStore();
         const router = useRouter();
 
         const state = reactive({
@@ -49,10 +51,11 @@ export default {
             }
             const { data } = await axios.post(url, body, {headers});
             console.log("로그인", data);
-
+            
             if(data.status === 200) {
-                console.log("로그인 성공");
+                store.commit('setLogin', true);
                 router.push({path:"/"});
+
             } else if(data.status === 0) {
                 console.log("로그인 실패");
                 alert("존재하지 않는 아이디입니다.");

@@ -16,9 +16,6 @@ var Bakery   = require('../models/bakerymodel');
 // 빵집 등록 => 127.0.0.1:3000/api/bakery/insert.json
 router.post('/insert.json', upload.single("file"), async function(req, res, next) {
     try{
-        // console.log('req.body=>', req.body);
-        // console.log('req.file=>', req.file);
-
         const bakery    = new Bakery();
         bakery.name = req.body.name;
         bakery.address = req.body.address;

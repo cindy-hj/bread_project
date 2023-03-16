@@ -14,6 +14,9 @@
 import MenuPage from './components/MenuPage.vue';
 // import FooterPage from './components/FooterPage.vue';
 import { Search } from '@element-plus/icons-vue';
+// import { useStore } from 'vuex';
+// import { reactive, computed } from 'vue';
+
 
 export default {
     components: {
@@ -23,8 +26,14 @@ export default {
         
     },
     setup() {
+        // 컴포넌트별 공용변수 사용하기 위해
+        // const store = useStore();
+        // const state = reactive({
+        //     isLogin : computed(() => store.getters.getLogin)
+        // });
         return {
-            Search
+            Search,
+            // state,
         };
     }
 };

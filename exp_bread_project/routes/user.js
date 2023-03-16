@@ -18,13 +18,11 @@ const bcrypt = require('bcrypt');
 const saltRounds = 10;
 
 // jwt
-var jwt = require('./jwt_util');
-var redisClient = require('./redis');
+const jwt = require('./jwt_util');
+// const redisClient = require('./redis_util'); // refresh token을 redis에 저장
+let refreshToken = null; // refresh Token을 서버에 저장
 
-// access token
-// const jwt = require('jsonwebtoken');
-
-// 회원 가입 => 127.0.0.1:3000/api/bakery/join.json
+// 회원 가입 => 127.0.0.1:3000/api/user/join.json
 router.post('/join.json', async(req, res, next) => {
     const { email, name, address, detailAddress, extraAddress, gender, password } = req.body;
     const salt = await bcrypt.genSalt(saltRounds);
@@ -53,11 +51,11 @@ router.post('/join.json', async(req, res, next) => {
     }
 });
 
-// 로그인 => 127.0.0.1:3000/api/bakery/login.json
+// 로그인 => 127.0.0.1:3000/api/user/login.json
 router.post('/login.json', async (req, res) => {
-    const query = { email: req.body.email };
-    const result = await User.findOne(query);
-
+    const email = { email: req.body.email };
+    const result = await User.findOne(email);
+    
     if (result === null) {
         return res.json({
             status: 0,
@@ -67,18 +65,19 @@ router.post('/login.json', async (req, res) => {
     } else {
         const check = await bcrypt.compare(req.body.password, result.password)
         if(check) {
+            const accessToken = await jwt.sign(email);
+            refreshToken = jwt.refresh(email);
+            console.log("억세스", accessToken);
+            console.log("리프레시", refreshToken);
+
+            // redisClient.set(query.toString(), JSON.stringify({token: refreshToken}));
             
-    console.log("입력한비밀번호", req.body.password);
-    console.log("데이터비밀번호", result.password)
-            return res.send({ // client에 토큰 모두를 반환
-                status :200,
-                loginSuccess: true,
-                // data: {
-                //     accessToken,
-                //     refreshToken,
-                // },
-                
-            });
+            return res.cookie("ACCESS", accessToken, {httpOnly : true})
+                        .status(200)
+                        .json({
+                            loginSuccess: true,
+                            status: 200
+                        })
         } else {
             return res.send({
                 status: -1,
@@ -89,99 +88,67 @@ router.post('/login.json', async (req, res) => {
     }
 })
 
-// let token;
-    // try {
-    //     token = jwt.sign(
-    //         { userId: newUser._id, email: newUser.email },
-    //         "!+$)%^sicIIHDKnvk$^",
-    //         { expiresIn: "1h" },
-    //     );
-    // } catch (err) {
-    //     const error = new Error("토큰 발생 오류");
-    //     return next(error);
-    // }
-    // res.status(201)
-    //     .send({
-    //         joinSuccess: true,
-    //         data: { 
-    //             userId: newUser._id,
-    //             email: newUser.email,
-    //             token: token,
-    //         },
-    //     });
+// 토큰 유효성 체크
+router.get('/auth.json', async(req, res, next)=> {
+    const accessToken = req.cookies.ACCESS;
+    if(!accessToken) {
+        return res.status(401).json({message : "access token을 찾을 수 없습니다."})
+    }
 
+    try {
+        const decoded = jwt.verify(accessToken);
+        // access token 유효
+        if(decoded.loginSuccess) {
+            return res.status(200)
+                        .json({
+                            email : decoded.email,
+                            isAdmin : decoded.isAdmin,
+                            loginSuccess : decoded.loginSuccess,
+                            status : 200,
+                            message : decoded.message
+                        });
+        } else {
+            // access token 만료
+            console.log("리프레시", refreshToken);
+            if(!refreshToken) {
+                return res.status(401).json({message: "refresh token을 찾을 수 없습니다."})
+            }
 
-        // .then((isMatch) => {
-        //     if(!isMatch) {
-                
-        //     }
-        // 비밀번호 일치시
-        // const accessToken = jwt.sign(jwt.user);
-        // const refreshToken = jwt.refresh();
+            try {
+                const decoded = jwt.refreshVerify(refreshToken);
+                const email = { email: decoded.email };
+                console.log("리프레시디코디드", decoded);
 
-        // 발급한 refresh token을 redis에 key를 user의 id로 저장
-        // redisClient.set(jwt.user.email, refreshToken);
+                // refresh token 유효, 새로운 access token 생성
+                if(decoded.loginSuccess) {
+                    const accessToken = await jwt.sign(email);
+                    return res.cookie("ACCESS", accessToken, {httpOnly : true})
+                                .status(200)
+                                .json({
+                                    loginSuccess: true,
+                                    status: 200
+                                })
+                } else { // refresh token 만료
+                    return res.send({
+                        status: 0,
+                        loginSuccess: false,
+                        message: "refresh token이 만료되었습니다.",
+                    });
+                }
+            } catch(e) {
+                console.error(e);
+                return res.send({ status : -1, result : e });
+            }
+        }
 
+    } catch(err) {
+        res.status(401)
+            .json({
+                loginSuccess : false,
+                message : "복호화 실패"
+            })
+    }
 
-
-
-//////////////////////////////////////////////access token만 발행
-
-
-// // 로그인 => 127.0.0.1:3000/api/bakery/login.json
-// router.post('/login.json', async (req, res, next) => {
-//     let { email, password } = req.body;
-    
-//     let existingUser;
-//     try {
-//         existingUser = await User.findOneAndDelete({ email: email });
-//     } catch {
-//         const error = new Error("회원을 찾지 못했습니다.");
-//         return new(error);
-//     }
-//     if(!existingUser || existingUser.password != password) {
-//         const error = new Error("아이디나 비밀번호가 틀렸습니다.");
-//         return next(error);
-//     }
-//     let token;
-//     try {
-//         token = jwt.sign(
-//             { userId: existingUser._id, email: existingUser.email },
-//             "!+$)%^sicIIHDKnvk$^",
-//             { expireIn: "1h"},
-//         );
-//     } catch(err) {
-//         console.log(err);
-//         const error = new Error("토큰 발생 실패");
-//         return next(error);
-//     }
-//     res.status(200)
-//         .json({
-//             loginSuccess: true,
-//             data: {
-//                 userId: existingUser._id,
-//                 email: existingUser.email,
-//                 token: token,
-//             },
-//         });
-// });
-
-// router.get('/accessResource', (req, res)=>{  
-//     const token = req.headers.authorization.split(' ')[1]; 
-//     //Authorization: 'Bearer TOKEN'
-//     if(!token)
-//     {
-//         res.status(200).json({success:false, message: "Error! Token was not provided."});
-//     }
-//     //Decoding the token
-//     const decodedToken = jwt.verify(token,"secretkeyappearshere" );
-//     res.status(200).json({
-//         success:true, 
-//         data: {
-//             userId:decodedToken.userId,
-//             email:decodedToken.email
-//         },
-//     });   
-// });
+})
 
 module.exports = router;

@@ -11,3 +11,4 @@ module.exports = defineConfig({
     }
   }
 })
+// cors이슈 해결하는 용.. -> 프론트와 백엔드의 서버주소가 다를떄...?
