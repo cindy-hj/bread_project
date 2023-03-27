@@ -42,8 +42,10 @@ export default {
             password: '',
         })
 
+
+
         const handleLogin = async() => {
-            const url = `api/user/login.json`;
+            const url = `api/user/login`;
             const headers = {"Content-type":"application/json"};
             const body = {
                 email : state.email,
@@ -53,8 +55,11 @@ export default {
             console.log("로그인", data);
             
             if(data.status === 200) {
-                store.commit('setLogin', true);
-                router.push({path:"/"});
+                const path = sessionStorage.getItem("CURRENT_PATH");
+                const query = JSON.parse(sessionStorage.getItem("QUERY"));
+
+                store.commit('setLogin');
+                router.push({path:path, query:query});
 
             } else if(data.status === 0) {
                 console.log("로그인 실패");

@@ -120,7 +120,7 @@ export default {
                 return false;
             }
 
-            const url = `api/user/join.json`;
+            const url = `api/user/join`;
             const headers = {"Content-Type":"application/json"};
             const body = {
                 email : `${state.emailId}@${state.emailAdd}`,

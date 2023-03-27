@@ -9,45 +9,51 @@ import JoinPage from '@/components/JoinPage.vue';
 import MyPage from '@/components/MyPage.vue';
 import RegionalPage from '@/components/RegionalPage.vue';
 import BakeryPage from '@/components/BakeryPage.vue';
+import ReviewPage from '@/components/ReviewPage.vue';
 
 import store from "../stores";
-// import { reactive, computed } from 'vue';
+import { computed } from 'vue';
 
-// 로그인 한 회원은 접근 못하도록------------>새고로침문제부터...
-const rejectAuthUser = (to, from, next) => {
-    if(store.state.isLogin) {
-        alert('이미 로그인 되었습니다.');
-        next("/");
+// 로그인 안한 회원은 접근 못하도록
+const onlyAuthUser = async(to, from, next) => {
+    await store.dispatch("checkToken")
+    const isLogin = computed(() => store.getters.getLogin)
+    console.log("네비가드 로그인",  isLogin.value);
+
+    if(!isLogin.value) {
+        alert('로그인이 필요한 페이지입니다.');
+        next("/login");
     } else {
         next();
     }
 }
 
-// 로그인 안한 회원은 접근 못하도록
-// const onlyAuthUser = (to, from, next) => {
-//     if(!store.state.isLogin) {
-//         alert('로그인이 필요한 페이지입니다.');
-//         next("/login");
-//     } else {
-//         next();
+
+// 로그인 한 회원은 접근 못하도록
+// const rejectAuthUser = (to, from, next) => {
+//     const logged = store.getters.getLogin;
+//     if(logged) { 
+//         const path = sessionStorage.getItem("CURRENT_PATH");
+//         const query = JSON.parse(sessionStorage.getItem("QUERY"));
+//         alert('잘못된 접근입니다.')
+//         next({path:path, query:query}); 
+//         return; 
 //     }
+//     next();
 // }
 
-const checkToken = (to, from, next) => {
-    store.dispatch("checkToken") 
-    next();
-}
 
 const routes = [
     {path : '/', component : MainPage },
     {path : '/intro', component : IntroPage },
     {path : '/CS', component : CSPage },
-    {path : '/login', component : LoginPage, beforeEnter: rejectAuthUser},
+    {path : '/login', component : LoginPage, /*beforeEnter: rejectAuthUser*/},
     {path : '/logout', component : LogoutPage},
-    {path : '/join', component : JoinPage, beforeEnter: rejectAuthUser},
-    {path : '/mypage', component : MyPage, beforeEnter: checkToken},
+    {path : '/join', component : JoinPage, /*beforeEnter: rejectAuthUser*/},
+    {path : '/mypage', component : MyPage, beforeEnter: onlyAuthUser},
     {path : '/regional', component : RegionalPage },
-    {path : '/bakery', component : BakeryPage },
+    {path : '/select', component : BakeryPage },
+    {path : '/review', component : ReviewPage, beforeEnter: onlyAuthUser},
 ]
 
 const router = createRouter({
@@ -56,24 +62,13 @@ const router = createRouter({
 });
 
 
-
-
-// 특정 페이지로 이동시 vuex의 action을 불러서 토큰 확인
-// router.beforeEach((to, from, next) => {
-//     const state = reactive({
-//         isLogin : computed(() => store.getters.getLogin)
-//     });
-//     console.log("이즈로그인",  state.isLogin);
-
-//     if(state.isLogin) {    
-//         store.dispatch("checkToken");
-//         next();
-//     } else {
-//         next();
-//     }
-// })
-
-
-
+// 로그인 후 원래 가려던 페이지로 이동 
+router.beforeEach((to, from, next)=>{
+    if(to.path !== '/login' && to.path !== '/logout') {
+        sessionStorage.setItem("CURRENT_PATH", to.path);
+        sessionStorage.setItem("QUERY", JSON.stringify(to.query));
+    }
+    next();
+});
 
 export default router;

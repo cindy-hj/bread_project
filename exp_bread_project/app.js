@@ -10,6 +10,7 @@ var mongoose = require('mongoose');
 // 1. require, rest용
 var bakeryRouter = require('./routes/bakery');
 var userRouter = require('./routes/user');
+var reviewRouter = require('./routes/review');
 
 var app = express();
 
@@ -22,6 +23,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'uploads'))); // url 사용을 위해 uploads 폴더를 static 폴더로 사용
 
 // 몽구스 연결
 mongoose.connect("mongodb://cindy:abcd1234@127.0.0.1:27017/bread")
@@ -30,6 +32,7 @@ mongoose.connection;
 // 2. 주소 설정
 app.use('/api/bakery', bakeryRouter);
 app.use('/api/user', userRouter);
+app.use('/api/review', reviewRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -46,5 +49,8 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
+
+
+
 
 module.exports = app;

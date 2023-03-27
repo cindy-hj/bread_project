@@ -6,26 +6,29 @@
 
 <script>
 import { useStore } from 'vuex';
-import { reactive, computed } from 'vue';
 import { useRouter } from 'vue-router';
+import axios from 'axios';
+import { onMounted } from 'vue';
 
 export default {
     setup () {
         const store = useStore();
         const router = useRouter();
 
-        store.commit('setLogin', false);
-        
-        const state = reactive({
-            isLogin : computed(() => store.getters.getLogin)
-        });
-        alert("로그아웃 되었습니다.");
-        router.push({path:"/"});
-
-        return {
-            state
+        const logout = () => {
+            const url = `/api/user/logout`;
+            const headers = { "Content-Type": "application/json" };
+            const body = {};
+            axios.delete(url, { headers: headers, data: body });
+            
+            store.commit('setLogout');
+            alert("로그아웃 되었습니다.");
+            router.push({ path:'/'});
         }
 
+        onMounted(() => {
+            logout();
+        });
     }
 }
 </script>

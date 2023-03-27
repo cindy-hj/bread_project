@@ -1,5 +1,4 @@
 var mongoose = require('mongoose');
-// npm i mongoose-sequence --save 라이브러리설치
 var sequence = require('mongoose-sequence')(mongoose);
 
 var BakerySchema = new mongoose.Schema({
@@ -20,8 +19,7 @@ var BakerySchema = new mongoose.Schema({
     lat : { type : String, default : '' }, // 위도
     lng : { type : String, default : '' }, // 경도
     
-    regdate : { type : Date,   default : Date.now }, // 등록일자(UTC)
-    regdate1: { type : String, default : '' }, // 등록일자 포맷변경
+    regdate : { type : Date,   default : Date.now }, // 등록일자
 
     filedata : { type : Buffer, default : null }, // 파일데이터
     filename : { type : String, default : '' }, // 파일명

@@ -12,7 +12,7 @@
                     <router-link
                         to="/"
                         style="text-decoration: none"
-                        >logo로그인상태{{ state.isLogin }}</router-link
+                        >logo로그인상태{{ state.email }}</router-link
                     >
                 </el-menu-item>
                 <div class="flex-grow" />
@@ -79,7 +79,8 @@ export default {
 
         const store = useStore();
         const state = reactive({
-            isLogin : computed(() => store.getters.getLogin)
+            isLogin : computed(() => store.getters.getLogin),
+            email : computed(() => store.getters.getUser.email)
         });
 
 
