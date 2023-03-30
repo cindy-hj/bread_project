@@ -8,6 +8,7 @@ var ReviewSchema = new mongoose.Schema({
     point : { type : Number, default : '0'}, //평점
     content : { type : String, default : ''}, //내용
     regdate : { type : Date,   default : Date.now}, //등록일자
+    regdate1 : { type : Date,   default : null }, // 시간 포맷 변경
     images: [{
         filedata : { type : Buffer, default : null}, //파일데이터
         filename : { type : String, default : '' }, //파일명
@@ -15,7 +16,6 @@ var ReviewSchema = new mongoose.Schema({
         filesize : { type : Number, default : 0 }, //파일크기
         imageurl : { type : String, default : '' }, //이미지 URL
     }],
-    // imageurl : { type : String, default : '' }, //이미지 URL
     
 
 });

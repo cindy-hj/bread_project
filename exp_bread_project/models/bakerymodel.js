@@ -20,6 +20,7 @@ var BakerySchema = new mongoose.Schema({
     lng : { type : String, default : '' }, // 경도
     
     regdate : { type : Date,   default : Date.now }, // 등록일자
+    regdate1 : { type : Date,   default : null }, // 시간 포맷 변경
 
     filedata : { type : Buffer, default : null }, // 파일데이터
     filename : { type : String, default : '' }, // 파일명

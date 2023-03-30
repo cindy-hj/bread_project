@@ -3,9 +3,9 @@ var router = express.Router();
 var path = require('path');
 
 // 시간 포맷 변경
-// var moment = require('moment');
-// require('moment-timezone');
-// moment.tz.setDefault('Asia/Seoul');
+var moment = require('moment');
+require('moment-timezone');
+moment.tz.setDefault('Asia/Seoul');
 
 // 파일 첨부
 var multer = require('multer')
@@ -67,6 +67,46 @@ router.get('/image', (req, res) => {
         }
     });
 })
+
+
+// 리뷰 조회 => http://127.0.0.1:3000/api/review/select?page=1&bakery=빵집id
+router.get('/select', async function(req, res, next) {
+    try{
+        // const page = Number(req.query.page); // 1
+        const query = { bakery_id: Number(req.query.bakery) };
+        const project = { 
+            'images.filedata' : 0,
+            'images.filename' : 0,
+            'images.filesize' : 0,
+            'images.filetype' : 0,
+        } 
+        const result = await Review.find(query, project)
+                                //    .sort({ _id : -1 }) // 정렬
+                                //    .skip( (page-1)*10 ) // 스킵
+                                //    .limit( 10 ); // 조회할 개수
+ 
+        console.log("리뷰 조회 결과", result);
+
+        for(let tmp of result) {
+            tmp.regdate1 = moment(tmp.regdate).format("YYYY-MM-DD HH:mm:ss");
+        //     tmp.imageurl = `/api/review/image?name=${tmp.name}`;
+        // console.log("regdate는 받나", tmp.regdate);
+        console.log("regdate1은 받나", tmp.regdate1);
+        }
+        
+
+        // 페이지네이션용 전체 개수(검색어가 포함된 개수)
+        const total = await Review.countDocuments(query);
+
+        return res.send({ status : 200, total : total, result : result });
+    }
+
+    catch(e){
+        console.error(e); 
+        return res.send({ status : -1, result : e });
+    }
+
+});
 
 
 module.exports = router;

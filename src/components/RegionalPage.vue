@@ -160,7 +160,7 @@ export default {
             const url = `/api/bakery/regional?page=${state.page}&region=${state.region}`;
             const headers = { "Content-Type" : "application/json" };
             const { data } = await axios.get(url, { headers });
-            console.log('확인',data);
+            console.log('지역별 빵집 데이터',data);
 
             if(data.status === 200) {
                 state.rows = data.result;

@@ -6,6 +6,8 @@ var logger = require('morgan');
 
 // 몽구스 연결
 var mongoose = require('mongoose');
+mongoose.connect("mongodb://cindy:abcd1234@127.0.0.1:27017/bread")
+mongoose.connection;
 
 // 1. require, rest용
 var bakeryRouter = require('./routes/bakery');
@@ -25,9 +27,6 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'uploads'))); // url 사용을 위해 uploads 폴더를 static 폴더로 사용
 
-// 몽구스 연결
-mongoose.connect("mongodb://cindy:abcd1234@127.0.0.1:27017/bread")
-mongoose.connection;
 
 // 2. 주소 설정
 app.use('/api/bakery', bakeryRouter);
