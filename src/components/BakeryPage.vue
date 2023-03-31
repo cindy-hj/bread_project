@@ -6,7 +6,7 @@
             <el-button size="large" round @click="modalVisible = false">닫기</el-button>
             <div class="modalInBox">
                 <div class="modalInBoxLeft">
-                    <img :src="currentImageUrl" />
+                    <img class="modalImage" :src="currentImageUrl" />
                 </div>
                 <div class="modalInBoxRight">
                     오른쪽
@@ -24,7 +24,7 @@
         </div>
         
         <div class="more" v-if="state.count > 5">
-            <el-button size="large" round @click="handleMore()">더보기</el-button>
+            <el-button size="large" round @click="handleModal(state.sixthOutterIndex, state.sixthInnerIndex)">더보기</el-button>
         </div>
 
         <div class="leftWrap">
@@ -64,15 +64,15 @@
                 <div class="reviewHeader">                
                     <h3>리뷰</h3>
                 </div>
-                <div class="reviewBody" v-for="tmp of state.review" :key="tmp">
+                <div class="reviewBody" v-for="(tmp, outterIndex) in state.review" :key="outterIndex">
                     <div class="reviewLeft">
                         <p>{{ tmp.writer }}</p>
                     </div>
                     <div class="reviewCenter">
                         <p>{{ tmp.regdate1 }}</p>
                         <p>{{ tmp.content }}</p>
-                        <div class="reviewimg" v-for="img of tmp.images" :key="img">
-                            <div class="imgReview"><img :src="img.imageurl" /></div>
+                        <div class="reviewimg" v-for="(img, innerIndex) in tmp.images" :key="innerIndex">
+                            <div class="imgReview"  @click="handleModal(outterIndex, innerIndex)"><img :src="img.imageurl" /></div>
                         </div>
                     </div>
                     <div class="reviewRight">
@@ -109,15 +109,15 @@ export default {
             row: "",
             review: [],
             count: 0,
-            modal: false,
-            sixthImage: "",
-            
+            sixthOutterIndex: 0,
+            sixthInnerIndex: 0,
         });  
         
         const modalVisible = ref(false);
         const currentOutterIndex = ref(0);
         const currentInnerIndex = ref(0);
 
+            
 
         // 리뷰 쓰기로 이동
         const handleReview = (bakery) => {
@@ -146,21 +146,12 @@ export default {
             if(data.status === 200) {
                 state.review = data.result;
 
-                // 리뷰 이미지 갯수 카운팅
-                // watchEffect(() => {
-                //     state.count = state.review.reduce((acc, cur) => {
-                //         return acc + cur.images.length
-                //     }, 0)
-                // }) 
-                // console.log("카운팅", state.count);
-
                 watchEffect(() => {
-                    state.count = 0; 
-                    for (const tmp of state.review) {  // 평탄화된 review 배열 내에서 각 이미지 객체에 접근
-                        for (const img of tmp.images) {
-                            if (++state.count === 6) {  // index 값이 6인 이미지 객체를 찾음
-                                state.sixthImage = img;
-                                console.log("여섯번째",state.sixthImage.imageurl);
+                    for (const [idx, tmp] of state.review.entries()) {  // 평탄화된 review 배열 내에서 각 이미지 객체에 접근
+                        for (const [jdx] of tmp.images.entries()) {
+                            if (++state.count === 6) {  // 여섯번째 이미지의 index 값을 찾음
+                                state.sixthOutterIndex = idx;
+                                state.sixthInnerIndex = jdx;
                                 break;
                             }
                         }
@@ -191,12 +182,6 @@ export default {
         const currentImageUrl = computed(() => {
             return state.review[currentOutterIndex.value].images[currentInnerIndex.value].imageurl;
         });
-
-        const handleMore = () => {
-            state.review[currentOutterIndex.value].images[currentInnerIndex.value].imageurl = state.sixthImage.imageurl;
-            modalVisible.value = true;
-        };
-
 
 
 
@@ -267,7 +252,6 @@ export default {
             state,
             handleReview,
             handleModal,
-            handleMore,
 
             modalVisible,
             currentOutterIndex,
@@ -307,7 +291,7 @@ export default {
     overflow: hidden;
     float: left;
 }
-.modalInBoxLeft img{
+.modalImage{
     width: 100%;
 }
 .modalInBoxRight{
