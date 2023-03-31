@@ -90,10 +90,7 @@ router.get('/regional', async function(req, res, next) {
                                    .skip( (page-1)*10 ) // 스킵
                                    .limit( 10 ); // 조회할 개수
  
-        // 이미지 URL을 생성은 했으나 file값은 받아오지 않았으므로 file값을 따로 받아오는 get을 만들어야함
-        // 합쳐서 하지 않는이유? 다른 곳에서도(ex:상점 1개 조회) 이미지를 불러오는 get을 쓸 수 있으므로 그때마다 file값 불러오기 번거로우니까 모듈로 분리
         for(let tmp of result) {
-        //     // format("YYYY-MM-DD DD:mm:ss")
             tmp.regdate1 = moment(tmp.regdate).format("YYYY-MM-DD");
             tmp.imageurl = `/api/bakery/image?_id=${tmp._id}&ts=${Date.now()}`;
         }
@@ -111,11 +108,11 @@ router.get('/regional', async function(req, res, next) {
 
 });
 
-// 빵집 상세페이지 조회 http://127.0.0.1:3000/api/bakery/select?bakery=빵집
+// 빵집 상세페이지 조회 http://127.0.0.1:3000/api/bakery/select?bakery=_id
 router.get('/select', async function(req, res, next) {
     try{
-        const bakery = req.query.bakery; 
-        const query = { name : new RegExp(bakery, 'i') };
+        const bakery = Number(req.query.bakery); 
+        const query = { _id : bakery };
         const project = { 
             filedata: 0, 
             filename: 0, 

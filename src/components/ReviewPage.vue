@@ -1,7 +1,7 @@
 <template>
     <div class="wrap">
         <div class="reviewHeader">
-            <h2 class="name">{{ state.bakery }}</h2>
+            <h2 class="name">{{ state.name }}</h2>
             <span>에 대한 솔직한 리뷰를 써주세요.</span>
             <div class="rating">
                 <span>별점 {{ state.score-1 }}</span>
@@ -46,7 +46,7 @@
 
 <script>
 import { reactive, computed, onMounted } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 
 import { Plus } from '@element-plus/icons-vue'
 import axios from 'axios';
@@ -59,6 +59,7 @@ export default {
 
     setup () {
         const route = useRoute();
+        const router = useRouter();
         const store = useStore();
 
         const state = reactive({
@@ -67,7 +68,7 @@ export default {
 
             content : '',
             bakery: route.query.bakery,
-            _id: route.query._id,
+            name: route.query.name,
 
             files : [], // 첨부파일 목록
             dialogVisible : false, // + 미리보기 다이얼로그
@@ -96,18 +97,13 @@ export default {
             }  
         }
 
-        // 사진 정보
-        // const handleImage = () => {
-        //     console
-        // }
-
         // 후기 입력
         const handleInsert = async() => {
             const url = `api/review/insert`;
             const headers = {"Content-Type":"multipart/form-data"};
             const body = new FormData();
 
-            body.append("bakery_id", state._id);
+            body.append("bakery_id", state.bakery);
             body.append("writer", state.user.name);
             body.append("point", state.score-1);
             body.append("content", state.content);
@@ -120,7 +116,10 @@ export default {
             const { data } = await axios.post(url, body, {headers});
             console.log("후기업로드데이터",data);
             if(data.status === 200) {
-                alert('성공');
+                // const path = sessionStorage.getItem("CURRENT_PATH");
+                const query = JSON.parse(sessionStorage.getItem("QUERY"));
+
+                router.push({path:"/select", query:{ bakery: query.bakery }});
             }
         };
       

@@ -23,7 +23,7 @@
                 </div>
                 <div v-for="tmp in state.rows" :key="tmp" >
                     <hr />
-                    <p @click="handleOne(tmp.name)">{{ tmp.name }}</p>
+                    <p @click="handleOne(tmp._id)">{{ tmp.name }}</p>
                     <p>{{ tmp.menu }}</p>
                     <p>{{ tmp.price }}</p>
                     <p><img :src="tmp.imageurl"></p>
@@ -54,8 +54,8 @@ export default {
         // 여기에서는 배열의 원소에 접근이 안됨
         // console.log('배열확인', state.overlay[0]);
 
-        const handleOne = (bakery) => {
-            router.push({path:"/select", query:{bakery:bakery}})
+        const handleOne = (_id) => {
+            router.push({path:"/select", query:{bakery:_id}})
         }
 
         const handleRegion = (region) => {

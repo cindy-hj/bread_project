@@ -2,6 +2,7 @@
     <div class="bakery">
 
         <div class ="modal" v-if="modalVisible">
+            <el-button size="large" round @click="showBeforeImage()">이전</el-button>
             <el-button size="large" round @click="showNextImage()">다음</el-button>
             <el-button size="large" round @click="modalVisible = false">닫기</el-button>
             <div class="modalInBox">
@@ -9,16 +10,16 @@
                     <img class="modalImage" :src="currentImageUrl" />
                 </div>
                 <div class="modalInBoxRight">
-                    오른쪽
+                    <p>{{ reviewWriter }}</p>
+                    <p>{{ reviewContent }}</p>
                 </div>
             </div>
-            
         </div>
 
         <div class="topImage">
             <div class="imgList" v-for="(tmp, outterIndex) in state.review" :key="outterIndex">
                 <div class="imgListIn" v-for="(img, innerIndex) in tmp.images" :key="innerIndex" @click="handleModal(outterIndex, innerIndex)">
-                    <img :src="img.imageurl" />
+                    <img :src="img.imageurl" style="cursor: pointer;"/>
                 </div>
             </div>
         </div>
@@ -32,9 +33,13 @@
                 <template #header>
                 <div class="infoHeader">
                     <span id="name"><h2>{{ state.row.name }}</h2></span>
-                    <span id="point">평점</span>
+                    <span id="point">평점 {{ state.grade.grade }}</span>
                     <el-button class="button" text>가고싶다</el-button>
-                    <el-button class="button" text @click="handleReview(state.row.name)">리뷰쓰기</el-button>
+                    <el-button class="button" text @click="handleReviewInsert(state.row._id)">리뷰쓰기</el-button>
+                    <p>
+                        <span>리뷰 {{ state.grade.reviewCount }}&nbsp;</span>
+                        <span>즐겨찾기</span>
+                    </p>
                 </div>
                 </template>
                 <div class="infoBody">
@@ -60,6 +65,7 @@
                     </div>
                 </div>
             </el-card>
+
             <div class="review">
                 <div class="reviewHeader">                
                     <h3>리뷰</h3>
@@ -71,8 +77,11 @@
                     <div class="reviewCenter">
                         <p>{{ tmp.regdate1 }}</p>
                         <p>{{ tmp.content }}</p>
+                        <p><el-button size="large" round @click="handleUpdate(tmp._id)">수정</el-button></p>
                         <div class="reviewimg" v-for="(img, innerIndex) in tmp.images" :key="innerIndex">
-                            <div class="imgReview"  @click="handleModal(outterIndex, innerIndex)"><img :src="img.imageurl" /></div>
+                            <div class="imgReview"  @click="handleModal(outterIndex, innerIndex)">
+                                <img :src="img.imageurl" style="cursor: pointer;"/>
+                            </div>
                         </div>
                     </div>
                     <div class="reviewRight">
@@ -81,6 +90,7 @@
                 </div>
             </div>
         </div>
+
         <div class="rightWrap">
             <h3>지도</h3>
             <div class="map">
@@ -111,17 +121,28 @@ export default {
             count: 0,
             sixthOutterIndex: 0,
             sixthInnerIndex: 0,
+            grade: "",
         });  
         
         const modalVisible = ref(false);
         const currentOutterIndex = ref(0);
         const currentInnerIndex = ref(0);
 
-            
-
         // 리뷰 쓰기로 이동
-        const handleReview = (bakery) => {
-            router.push({path:"/review", query:{bakery:bakery, _id:state.row._id}})
+        const handleReviewInsert = (_id) => {
+            router.push({path:"/review", query:{bakery:_id, name:state.row.name}})
+        }
+
+        // 리뷰갯수, 상점 평점 조회
+        const handleGrade = async() => {
+            const url = `/api/review/grade?bakery=${state.bakery}`;
+            const headers = { "Content-Type" : "application/json" };
+            const { data } = await axios.get(url, { headers });
+            console.log('리뷰갯수, 평점',data);
+
+            if(data.status === 200) {
+                state.grade = data.result;
+            }
         }
 
         // 빵집 데이터 읽어오기
@@ -161,11 +182,22 @@ export default {
             }
         }
 
-        // 리뷰 사진 모달창      
+        //////////////////////////////////// 리뷰 사진 모달창 //////////////////////////////////////////////     
         const handleModal = (outterIndex, innerIndex) => {
             currentOutterIndex.value = outterIndex;
             currentInnerIndex.value = innerIndex;
             modalVisible.value = true;
+        };
+
+        const showBeforeImage = () => {
+            if (currentInnerIndex.value > 0) {
+                currentInnerIndex.value -= 1;
+            } else if (currentOutterIndex.value > 0) {
+                currentOutterIndex.value -= 1;
+                currentInnerIndex.value = state.review[currentOutterIndex.value].images.length - 1;
+            } else {
+                alert("처음 이미지입니다.");
+            }
         };
 
         const showNextImage = () => {
@@ -182,10 +214,18 @@ export default {
         const currentImageUrl = computed(() => {
             return state.review[currentOutterIndex.value].images[currentInnerIndex.value].imageurl;
         });
+        
+        const reviewWriter = computed(() => {
+            return state.review[currentOutterIndex.value].writer;
+        });
+
+        const reviewContent = computed(() => {
+            return state.review[currentOutterIndex.value].content;
+        });
+        /////////////////////////////////////////////////////////////////////////////////////////////
 
 
-
-        ////////////////////////////////////////////////지도//////////////////////////////////
+        ////////////////////////////////////////////////지도//////////////////////////////////////////
         const initMap = async() => {
             const mapContainer = document.getElementById('map');
             const mapOptions = {
@@ -239,25 +279,27 @@ export default {
                     await window.kakao.maps.load(initMap);
                 };
         };
-
-        //////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////////////////////////////////
 
         onMounted(async() => {
             await handleData();
             handleMap();
             handleReviewData();
+            handleGrade();
         });
 
         return {
             state,
-            handleReview,
+            handleReviewInsert,
             handleModal,
-
             modalVisible,
             currentOutterIndex,
             currentInnerIndex,
+            showBeforeImage,
             showNextImage,
             currentImageUrl,
+            reviewWriter,
+            reviewContent,
         }
     }
 }
@@ -277,7 +319,6 @@ export default {
     top: 0px;
 }
 .modalInBox{
-    /* border: 1px solid #cccccc; */
     width: 80%;
     height: 80%;
     position: relative;
@@ -292,7 +333,8 @@ export default {
     float: left;
 }
 .modalImage{
-    width: 100%;
+    max-width: 100%;
+    max-height: 100%; 
 }
 .modalInBoxRight{
     background-color: white;
@@ -302,7 +344,6 @@ export default {
 }
 .topImage{
     display: flex;
-    /* flex-wrap: wrap; */
     overflow: hidden;
 }
 .imgList {
@@ -312,26 +353,13 @@ export default {
     width: 250px;
     height: 300px;
     margin: 9px;
-    /* flex: 1; */
 }
-/* .spacer {
-  width: 10px; 
-  display: inline-block;
-  vertical-align: top; 
-} */
 .imgListIn img {
   width: 100%;
   height: 100%; 
   display: block;
 }
 .more {
-    /* border: 1px solid #cccccc;
-    width: 80px;
-    height: 30px;
-    text-align: center;
-    line-height: 30px;
-    padding: 5px; */
-
     position: absolute;
     right: 30px;
     top: 250px;
@@ -367,21 +395,18 @@ export default {
 }
 .reviewLeft{
     width: 100px; 
-    /* border: 1px solid #cccccc;   */
     float: left;   
     position: relative;
     margin: 10px;
 }
 .reviewCenter{
     width: 550px;
-    /* border: 1px solid #cccccc;  */
     float: left;     
     position: relative;
     margin: 10px;
 }
 .reviewRight{
     width: 140px;
-    /* border: 1px solid #cccccc;   */
     float: left;
     position: relative;
     margin: 10px;
@@ -413,6 +438,4 @@ export default {
     margin-left: 10px;
 
 }
-
-
 </style>
