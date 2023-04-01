@@ -11,7 +11,8 @@ var UserSchema = new mongoose.Schema({
     gender          : { type: String, default: '' }, // 성별
     password        : { type: String, default: '' }, // 비밀번호
     
-    reveiwCount     : { type: Number, default: 0 }, // 리뷰횟수
+    reviewCount     : { type: Number, default: 0 }, // 리뷰횟수????????????
+    bookmarkBakery  : { type: Object, default: {} }, // 즐겨찾기 한 빵집
     joinDate        : { type: Date, default: Date.now }, // 가입일자
     withdrawalDate  : { type: Date, default: '' }, // 탈퇴일자
     

@@ -13,6 +13,7 @@ mongoose.connection;
 var bakeryRouter = require('./routes/bakery');
 var userRouter = require('./routes/user');
 var reviewRouter = require('./routes/review');
+var bookmarkRouter = require('./routes/bookmark');
 
 var app = express();
 
@@ -32,6 +33,7 @@ app.use(express.static(path.join(__dirname, 'uploads'))); // url 사용을 위�
 app.use('/api/bakery', bakeryRouter);
 app.use('/api/user', userRouter);
 app.use('/api/review', reviewRouter);
+app.use('/api/bookmark', bookmarkRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

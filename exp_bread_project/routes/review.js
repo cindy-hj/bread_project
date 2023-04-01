@@ -138,26 +138,23 @@ router.get('/select', async function(req, res, next) {
 //     }
 // });
 
-// 리뷰 갯수, 상점 평점 조회
+// 상점별 리뷰 갯수, 상점 평점 조회
 router.get('/grade', async function(req, res, next) {
     try{
-        // 리뷰 갯수
+        // 상점별 리뷰 갯수
         const reviewCount = await Review.countDocuments({
             // $nor: [{ deleted: true }],
             bakery_id: Number(req.query.bakery),
         })
-        // console.log("리뷰갯수", reviewCount);
 
         // 별점 합
         const pointSum = await Review.aggregate([
             { $match: { bakery_id: Number(req.query.bakery )} },
             { $group: { _id: "$bakery_id", totalPoints: { $sum: "$point" } } }
         ])
-        // console.log("별점 합", pointSum[0].totalPoints);
 
         // 평점
         const grade = Number(pointSum[0].totalPoints)/Number(reviewCount);
-        // console.log("평점", grade);
         
         return res.send({ status : 200, result : {reviewCount, grade} });
     }

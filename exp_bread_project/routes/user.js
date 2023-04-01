@@ -93,6 +93,7 @@ router.get('/auth', async(req, res, next)=> {
     if(!accessToken) {
         return res.json({
             status : 401,
+            loginSuccess : false,
             message : "access token을 찾을 수 없습니다."
         })
     }
@@ -113,7 +114,8 @@ router.get('/auth', async(req, res, next)=> {
             // console.log("리프레시", refreshToken);
             if(!refreshToken) {
                 return res.json({
-                    status : 401,
+                    status : 401,            
+                    loginSuccess : false,
                     message: "refresh token을 찾을 수 없습니다."
                 })
             }
