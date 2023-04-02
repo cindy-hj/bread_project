@@ -9,7 +9,8 @@ import JoinPage from '@/components/JoinPage.vue';
 import MyPage from '@/components/MyPage.vue';
 import RegionalPage from '@/components/RegionalPage.vue';
 import BakeryPage from '@/components/BakeryPage.vue';
-import ReviewPage from '@/components/ReviewPage.vue';
+import ReviewInsertPage from '@/components/ReviewInsertPage.vue';
+import ReviewUpdatePage from '@/components/ReviewUpdatePage.vue';
 
 import store from "../stores";
 import { computed } from 'vue';
@@ -53,7 +54,8 @@ const routes = [
     {path : '/mypage', component : MyPage, beforeEnter: onlyAuthUser},
     {path : '/regional', component : RegionalPage },
     {path : '/select', component : BakeryPage },
-    {path : '/review', component : ReviewPage, beforeEnter: onlyAuthUser},
+    {path : '/reviewinsert', component : ReviewInsertPage, beforeEnter: onlyAuthUser},
+    {path : '/reviewupdate', component : ReviewUpdatePage }, // 수정버튼에 로그인 한 사람만 접근 가능하므로 가드설정 필요없다
 ]
 
 const router = createRouter({

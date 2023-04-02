@@ -99,7 +99,7 @@
             >
             <p>
               <span>리뷰 {{ state.grade.reviewCount }}&nbsp;</span>
-              <span>즐겨찾기</span>
+              <span>즐겨찾기{{ state.bookmark }}</span>
             </p>
           </div>
         </template>
@@ -146,8 +146,16 @@
               <el-button
                 size="large"
                 round
-                @click="handleUpdate(tmp._id)"
+                v-if="tmp.email === state.email"
+                @click="handleReviewUpdate(tmp._id)"
                 >수정</el-button
+              >
+              <el-button
+                size="large"
+                round
+                v-if="tmp.email === state.email"
+                @click="handleReviewDelete(tmp._id)"
+                >삭제</el-button
               >
             </p>
             <div
@@ -207,6 +215,8 @@ export default {
 
       isLogin: computed(() => store.getters.getLogin),
       email: computed(() => store.getters.getUser.email),
+
+      bookmark: 0,
       checkBookmark: false,
       isBookmarked: false,
 
@@ -247,7 +257,7 @@ export default {
 
     // 리뷰 데이터 읽어오기
     const handleReviewData = async () => {
-      const url = `/api/review/select?bakery=${state.row._id}`;
+      const url = `/api/review/select?bakery=${state.bakery}`;
       const headers = { 'Content-Type': 'application/json' };
       const { data } = await axios.get(url, { headers });
       console.log('리뷰데이터', data);
@@ -271,25 +281,57 @@ export default {
       }
     };
 
+    // 빵집 즐겨찾기 데이터 읽어오기
+    const handleBookmarkData = async () => {
+      const url = `/api/bookmark/select?bakeryId=${state.bakery}`;
+      const headers = { 'Content-Type': 'application/json' };
+      const { data } = await axios.get(url, { headers });
+      console.log('빵집별 즐겨찾기 조회', data);
+
+      if (data.status === 200) {
+        state.bookmark = data.bakeryCount;
+      }
+    };
+
     //////////////////////////////////리뷰///////////////////////////////////////////////
     // 리뷰 쓰기로 이동
-    const handleReviewInsert = _id => {
+    const handleReviewInsert = (_id) => {
       router.push({
-        path: '/review',
+        path: '/reviewinsert',
         query: { bakery: _id, name: state.row.name }
       });
     };
-
+    // 리뷰 수정으로 이동
+    const handleReviewUpdate = (_id) => {
+      router.push({
+        path: '/reviewupdate',
+        query: { bakery:state.bakery, review: _id, name: state.row.name }
+      });
+    }
+    // 리뷰 삭제 -> deleted 값을 true로
+    const handleReviewDelete = async(_id) => {
+      const url = `api/review/delete?_id=${_id}`;
+      const headers = {"Content-Type":"application/json"};
+      const body = {
+        deleted : true        
+      }
+      const { data } = await axios.put(url, body, {headers});
+      console.log("후기 삭제", data);
+      
+      if(data.status === 200) {
+        router.push({path:"/select", query:{ bakery: state.bakery }});
+      }
+    }
     ///////////////////////////////////////////////////////////
 
     //////////////////////////////////즐겨찾기//////////////////////////////////////
-    // 즐겨찾기 조회
+    // 회원별 즐겨찾기 조회
     const handleBookmarkCheck = async() => {
       const url = `/api/bookmark/select?bakeryId=${state.bakery}&email=${state.email}`;
       const headers = { 'Content-Type': 'application/json' };
       const { data } = await axios.get(url, { headers });
 
-      console.log('즐겨찾기 조회', data);
+      console.log('회원별 즐겨찾기 조회', data);
       
       // 데이터 값이 있으면 checkBookmark 값을 true를 주고 isBookmarked값을 받아온다
       if (data.status === 200) {
@@ -331,6 +373,7 @@ export default {
       if (data.status === 200) {
         // 즐겨찾기 값 수정 후 다시 읽어오기
         handleBookmarkCheck();
+        handleBookmarkData();
       }
     };
 
@@ -466,6 +509,8 @@ export default {
       handleMap();
       handleReviewData();
       handleGrade();
+      handleBookmarkData();
+
       if (state.isLogin) {
         handleBookmarkCheck(); // 로그인 했을때만 즐겨찾기 정보 가져오도록
       }
@@ -485,7 +530,9 @@ export default {
       reviewContent,
       handleBookmarkInsert,
       handleBookmarkUpdate,
-      handleBookmarkClick
+      handleBookmarkClick,
+      handleReviewUpdate,
+      handleReviewDelete,
     };
   }
 };

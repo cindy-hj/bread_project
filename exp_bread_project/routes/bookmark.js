@@ -8,11 +8,20 @@ var Bookmark = require('../models/bookmarkmodel');
 // 즐겨찾기 조회
 router.get('/select', async function(req, res, next) {
     try{
-        const query = { bakeryId : Number(req.query.bakeryId), email : req.query.email };
+        const query = { bakeryId : Number(req.query.bakeryId) };
+        if (req.query.email) { // 특정 회원의 즐겨찾기 조회
+            query.email = req.query.email;
+        }
         const result = await Bookmark.find(query)
-        console.log("즐겨찾기 조회", result.length);
-        if(result.length) {
-            return res.send({ status : 200, result });        
+        // console.log("최초 즐겨찾기 했었나", result.length);
+
+        const bakeryResult = result.filter(obj => obj.isBookmarked === true);
+        // console.log("즐겨찾기 한 객체", bakeryResult);
+        const bakeryCount = bakeryResult.length;
+        // console.log("빵집별 즐겨찾기 수", bakeryCount)
+
+        if(result.length) { // 빵집 입장에서도 어떤 회원도 즐겨찾기 안했다면 값을 받아올 필요가 없음
+            return res.send({ status : 200, bakeryCount, result });        
         }
         return res.send({ status : 0, result })
     }

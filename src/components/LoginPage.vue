@@ -11,6 +11,7 @@
       <el-form-item label="비밀번호">
         <el-input
           type="password"
+          @keyup.enter="handleLogin()"
           v-model="state.password"
         />
       </el-form-item>
